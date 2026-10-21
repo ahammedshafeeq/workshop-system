@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Public Certificate Verification | TRIX Workshops</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=4.0">
+  <style>
+    .verify-page-wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px;
+      background-color: #F8FAFC;
+      background-image: 
+        radial-gradient(circle at 10% 12%, rgba(13, 148, 136, 0.09) 0%, transparent 45%),
+        radial-gradient(circle at 90% 18%, rgba(20, 184, 166, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 50% 85%, rgba(15, 118, 110, 0.06) 0%, transparent 55%),
+        radial-gradient(rgba(13, 148, 136, 0.09) 1.25px, transparent 1.25px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+      background-attachment: fixed;
+    }
+    .verify-box {
+      width: 100%;
+      max-width: 640px;
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      padding: 36px;
+      margin-bottom: 24px;
+    }
+    .verified-result-card {
+      display: none;
+      border: 2px solid var(--success);
+      border-radius: var(--radius-lg);
+      background: #FFFFFF;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      margin-top: 24px;
+    }
+    .verified-header {
+      background: var(--success-bg);
+      color: var(--success);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .verified-body {
+      padding: 24px;
+    }
+    .verify-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 0.9rem;
+    }
+    .verify-row:last-child {
+      border-bottom: none;
+    }
+    .verify-row-label {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .verify-row-value {
+      color: var(--text-main);
+      font-weight: 600;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="verify-page-wrap">
+    <div style="text-align: center; margin-bottom: 30px;">
+      <a href="index.html" class="sidebar-brand" style="justify-content: center; border: none; padding: 0;">
+        <div class="brand-icon-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            <line x1="12" y1="6" x2="16" y2="6"></line>
+            <line x1="12" y1="10" x2="16" y2="10"></line>
+          </svg>
+        </div>
+        <div class="brand-title-wrap" style="text-align: left;">
+          <h2>TRIX Workshops</h2>
+          <p>Certificate Verification Authority</p>
+        </div>
+      </a>
+    </div>
+
+    <div class="verify-box">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.02em;">
+          Verify Workshop Certificate
+        </h1>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 6px;">
+          Authenticate certificate credentials issued by APJ Abdul Kalam Technological University & Group TRIX.
+        </p>
+      </div>
+
+      <form id="verify-form" style="display: flex; gap: 10px;">
+        <input type="text" id="verify-input" class="form-control" placeholder="Enter Certificate Number (e.g. TRIX-CERT-2026-KTU001) or Code (e.g. V-TRIX01)" required autofocus>
+        <button type="submit" id="verify-btn" class="btn btn-primary" style="white-space: nowrap; padding: 10px 22px;">
+          Verify Authenticity
+        </button>
+      </form>
+
+      <div style="margin-top: 14px; font-size: 0.78rem; color: var(--text-muted); text-align: center;">
+        Sample test codes: <code style="background: #F1F5F9; padding: 2px 6px; border-radius: 4px; cursor: pointer;" onclick="document.getElementById('verify-input').value='V-TRIX01'">V-TRIX01</code> or <code style="background: #F1F5F9; padding: 2px 6px; border-radius: 4px; cursor: pointer;" onclick="document.getElementById('verify-input').value='TRIX-CERT-2026-KTU002'">TRIX-CERT-2026-KTU002</code>
+      </div>
+
+      <!-- Result Card -->
+      <div id="verified-card" class="verified-result-card">
+        <div class="verified-header">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+          Official Certificate Authenticated
+        </div>
+        <div class="verified-body">
+          <div class="verify-row">
+            <span class="verify-row-label">Participant Full Name</span>
+            <span class="verify-row-value" id="res-name">-</span>
+          </div>
+          <div class="verify-row">
+            <span class="verify-row-label">Workshop Title</span>
+            <span class="verify-row-value" id="res-workshop">-</span>
+          </div>
+          <div class="verify-row">
+            <span class="verify-row-label">Workshop Date</span>
+            <span class="verify-row-value" id="res-date">-</span>
+          </div>
+          <div class="verify-row">
+            <span class="verify-row-label">Venue</span>
+            <span class="verify-row-value" id="res-venue">-</span>
+          </div>
+          <div class="verify-row">
+            <span class="verify-row-label">Certificate ID</span>
+            <span class="verify-row-value" id="res-cert-id" style="font-family: monospace; color: var(--brand-primary);">-</span>
+          </div>
+          <div class="verify-row">
+            <span class="verify-row-label">Verification Code</span>
+            <span class="verify-row-value" id="res-code" style="font-family: monospace;">-</span>
+          </div>
+          <div class="verify-row">
+            <span class="verify-row-label">Issue Date</span>
+            <span class="verify-row-value" id="res-issue-date">-</span>
+          </div>
+          <div class="verify-row">
+            <span class="verify-row-label">Issuing Authority</span>
+            <span class="verify-row-value">KTU Dept of CSE • Group TRIX</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size: 0.82rem; color: var(--text-secondary); text-align: center;">
+      <a href="index.html" style="color: var(--text-secondary); text-decoration: none;">&larr; Back to Home</a>
+      <span style="margin: 0 8px;">•</span>
+      <a href="login.html" style="color: var(--brand-primary); text-decoration: none; font-weight: 500;">Participant Login</a>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/verify.js"></script>
+</body>
+</html>
+

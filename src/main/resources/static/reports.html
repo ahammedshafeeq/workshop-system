@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports & Data Exports | TRIX Workshops</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=4.0">
+  <style>
+    .report-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+      padding-bottom: 4px;
+    }
+    .report-tab-pill {
+      padding: 9px 16px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      background: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .report-tab-pill:hover {
+      background: #F1F5F9;
+      color: var(--text-main);
+    }
+    .report-tab-pill.active {
+      background: var(--brand-tint);
+      color: var(--brand-primary-dark);
+      border-color: var(--brand-border);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="app-sidebar" id="sidebar">
+      <a href="admin-dashboard.html" class="sidebar-brand">
+        <div class="brand-icon-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            <line x1="12" y1="6" x2="16" y2="6"></line>
+            <line x1="12" y1="10" x2="16" y2="10"></line>
+          </svg>
+        </div>
+        <div class="brand-title-wrap">
+          <h2>TRIX Workshops</h2>
+          <p>Organizer Portal</p>
+        </div>
+      </a>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Core Management</div>
+        <a href="admin-dashboard.html" class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Dashboard
+        </a>
+        <a href="workshops.html" class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+          Workshops
+        </a>
+        <a href="registrations.html" class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+          Registrations
+        </a>
+        <a href="attendance.html" class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+          Attendance
+        </a>
+        <a href="certificates.html" class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+          Certificates & Eligibility
+        </a>
+
+        <div class="nav-section-title">Analytics & Audit</div>
+        <a href="reports.html" class="nav-item active">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          Reports & CSV Export
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-snippet">
+          <div class="user-avatar user-display-avatar">A</div>
+          <div class="user-info">
+            <div class="user-name user-display-name">Admin User</div>
+            <div class="user-role-badge user-display-role">Administrator</div>
+          </div>
+          <button onclick="Auth.logout()" class="btn btn-secondary btn-sm" title="Sign Out" style="padding: 6px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+          <div class="page-breadcrumb">
+            <span>Administration</span>
+            <span>/</span>
+            <span class="current">Reporting & Analytical Exports</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button onclick="downloadActiveCsv()" class="btn btn-primary btn-sm" id="btn-export-csv">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Export Active Report (CSV)
+          </button>
+        </div>
+      </header>
+
+      <main class="app-content">
+        <div class="page-header">
+          <div class="page-title-wrap">
+            <h1>Reports & Academic Auditing</h1>
+            <p>Generate tabular summary metrics and download sanitized CSV datasets for documentation.</p>
+          </div>
+        </div>
+
+        <!-- Report Tabs -->
+        <div class="report-tabs">
+          <button class="report-tab-pill active" onclick="selectReport('workshops')">1. Workshop Summary</button>
+          <button class="report-tab-pill" onclick="selectReport('registrations')">2. Participant Registrations</button>
+          <button class="report-tab-pill" onclick="selectReport('attendance')">3. Attendance Report</button>
+          <button class="report-tab-pill" onclick="selectReport('certificates')">4. Certificate Issuance</button>
+          <button class="report-tab-pill" onclick="selectReport('capacity')">5. Capacity & Utilization</button>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar" id="report-filter-bar">
+          <div style="min-width: 170px;" id="filter-workshop-wrap">
+            <select id="rep-workshop" class="form-select">
+              <option value="">All Workshops</option>
+            </select>
+          </div>
+
+          <div style="min-width: 150px;" id="filter-category-wrap">
+            <select id="rep-category" class="form-select">
+              <option value="ALL">All Categories</option>
+              <option value="Cloud Computing">Cloud Computing</option>
+              <option value="AI & Machine Learning">AI & Machine Learning</option>
+              <option value="Cyber Security">Cyber Security</option>
+              <option value="Web Technologies">Web Technologies</option>
+              <option value="IoT & Embedded Systems">IoT & Embedded Systems</option>
+            </select>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label style="font-size: 0.8rem; color: var(--text-secondary);">From:</label>
+            <input type="date" id="rep-start-date" class="form-control" style="width: auto;">
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label style="font-size: 0.8rem; color: var(--text-secondary);">To:</label>
+            <input type="date" id="rep-end-date" class="form-control" style="width: auto;">
+          </div>
+
+          <button onclick="applyReportFilters()" class="btn btn-secondary btn-sm">Filter</button>
+        </div>
+
+        <!-- Report Meta Banner -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 0.86rem; color: var(--text-secondary);">
+          <div>
+            <strong id="rep-display-title" style="color: var(--text-main);">Workshop Summary Report</strong>
+            <span style="margin: 0 8px;">•</span>
+            <span id="rep-record-count">0 records</span>
+          </div>
+          <div style="font-size: 0.78rem;">
+            Generated: <span id="rep-generated-at">-</span>
+          </div>
+        </div>
+
+        <!-- Tabular Output -->
+        <div class="content-card">
+          <div class="table-container" style="border: none;">
+            <table class="custom-table" id="report-table">
+              <thead id="report-table-head"></thead>
+              <tbody id="report-table-body">
+                <tr><td style="text-align: center; padding: 32px;">Loading report dataset...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/reports.js"></script>
+</body>
+</html>
+

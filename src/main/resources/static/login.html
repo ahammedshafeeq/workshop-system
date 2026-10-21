@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | TRIX Workshop Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=4.0">
+  <style>
+    .auth-split-layout {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      min-height: 100vh;
+      background: #FFFFFF;
+    }
+
+    /* Left Hero Showcase (Teal Midnight Luxury) */
+    .auth-hero-pane {
+      background: linear-gradient(140deg, #042F2E 0%, #115E59 45%, #0D9488 100%);
+      color: #FFFFFF;
+      padding: 64px 54px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-hero-pane::before {
+      content: "";
+      position: absolute;
+      top: -120px;
+      right: -80px;
+      width: 380px;
+      height: 380px;
+      background: radial-gradient(circle, rgba(45, 212, 191, 0.35) 0%, rgba(13, 148, 136, 0) 70%);
+      border-radius: 50%;
+      filter: blur(50px);
+    }
+
+    .auth-hero-pane::after {
+      content: "";
+      position: absolute;
+      bottom: -100px;
+      left: -80px;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.25) 0%, rgba(212, 175, 55, 0) 70%);
+      border-radius: 50%;
+      filter: blur(60px);
+    }
+
+    .hero-brand-header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .hero-brand-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      box-shadow: 0 8px 20px rgba(4, 47, 46, 0.3);
+    }
+
+    .hero-brand-text h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-brand-text p {
+      font-size: 0.78rem;
+      color: #99F6E4;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .hero-center-content {
+      position: relative;
+      z-index: 10;
+      max-width: 500px;
+      margin: 40px 0;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #CCFBF1;
+      margin-bottom: 22px;
+      backdrop-filter: blur(8px);
+    }
+
+    .hero-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      color: #E6FFFA;
+      line-height: 1.6;
+      margin-bottom: 34px;
+    }
+
+    .hero-features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .hero-feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+      color: #F0FDFA;
+      font-weight: 500;
+    }
+
+    .feature-check {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(45, 212, 191, 0.25);
+      color: #5EEAD4;
+      border: 1px solid rgba(45, 212, 191, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+      font-weight: 800;
+    }
+
+    .hero-footer-info {
+      position: relative;
+      z-index: 10;
+      font-size: 0.82rem;
+      color: #99F6E4;
+      font-weight: 500;
+    }
+
+    /* Right Form Pane (Crisp White + Teal Accents) */
+    .auth-form-pane {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      background: #F8FAFC;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(13, 148, 136, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(20, 184, 166, 0.05) 0px, transparent 50%);
+    }
+
+    .auth-card-box {
+      width: 100%;
+      max-width: 440px;
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 42px 36px;
+      box-shadow: 0 10px 30px -5px rgba(13, 148, 136, 0.1);
+    }
+
+    .auth-form-header {
+      margin-bottom: 28px;
+    }
+
+    .auth-form-header h2 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .auth-form-header p {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+
+    .demo-credentials-box {
+      background: var(--brand-tint);
+      border: 1px solid var(--brand-border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-top: 24px;
+    }
+
+    .demo-title {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--brand-primary-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .demo-buttons-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .demo-btn {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--brand-primary);
+      background: #FFFFFF;
+      color: var(--brand-primary-dark);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+      box-shadow: 0 1px 2px rgba(13, 148, 136, 0.08);
+    }
+
+    .demo-btn:hover {
+      background: var(--brand-primary);
+      color: #FFFFFF;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25);
+    }
+
+    @media (max-width: 900px) {
+      .auth-split-layout {
+        grid-template-columns: 1fr;
+      }
+      .auth-hero-pane {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="toast-container"></div>
+
+  <div class="auth-split-layout">
+    <!-- Left Hero Pane -->
+    <div class="auth-hero-pane">
+      <div class="hero-brand-header">
+        <div class="hero-brand-logo">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            <line x1="12" y1="6" x2="16" y2="6"></line>
+            <line x1="12" y1="10" x2="16" y2="10"></line>
+          </svg>
+        </div>
+        <div class="hero-brand-text">
+          <h1>TRIX WORKSHOPS</h1>
+          <p>Group TRIX • KTU CSE Department</p>
+        </div>
+      </div>
+
+      <div class="hero-center-content">
+        <div class="hero-badge">
+          <span>✦ KTU B.Tech S3 Computer Science & Engineering</span>
+        </div>
+        <h2 class="hero-title">Academic Workshop Management & Verified Certification</h2>
+        <p class="hero-desc">
+          Automate the complete academic lifecycle from student registrations and live seat tracking to real-time attendance verification and QR-backed certificate issuance.
+        </p>
+
+        <div class="hero-features-list">
+          <div class="hero-feature-item">
+            <div class="feature-check">✓</div>
+            <span>Interactive dashboards for Organizers and Student Participants</span>
+          </div>
+          <div class="hero-feature-item">
+            <div class="feature-check">✓</div>
+            <span>Automated 75% attendance threshold eligibility checking</span>
+          </div>
+          <div class="hero-feature-item">
+            <div class="feature-check">✓</div>
+            <span>A4 landscape PDF certificates with dynamic ZXing QR codes</span>
+          </div>
+          <div class="hero-feature-item">
+            <div class="feature-check">✓</div>
+            <span>Instant public verification portal & NAAC/NBA audit reports</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-footer-info">
+        APJ Abdul Kalam Technological University • Department of Computer Science & Engineering
+      </div>
+    </div>
+
+    <!-- Right Form Pane -->
+    <div class="auth-form-pane">
+      <div class="auth-card-box">
+        <div class="auth-form-header">
+          <h2>Welcome Back</h2>
+          <p>Sign in to access your dashboard and workshops</p>
+        </div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email Address</label>
+            <input type="email" id="login-email" class="form-input" placeholder="e.g. admin@trix.com" required>
+          </div>
+
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label class="form-label" for="login-password" style="margin-bottom: 0;">Password</label>
+            </div>
+            <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required>
+          </div>
+
+          <button type="submit" id="login-btn" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 6px;">
+            Sign In to Account
+          </button>
+        </form>
+
+        <div class="demo-credentials-box">
+          <div class="demo-title">
+            <span>⚡ Quick-Fill Demo Accounts</span>
+          </div>
+          <div class="demo-buttons-row">
+            <button type="button" class="demo-btn" onclick="fillCreds('admin@trix.com', 'admin123')">
+              Admin Demo
+            </button>
+            <button type="button" class="demo-btn" onclick="fillCreds('alex@gmail.com', 'student123')">
+              Student Demo
+            </button>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px; text-align: center; font-size: 0.88rem; color: var(--text-secondary);">
+          Don't have an account? <a href="register.html" style="color: var(--brand-primary); font-weight: 700; text-decoration: none;">Register here</a>
+        </div>
+
+        <div style="margin-top: 14px; text-align: center; font-size: 0.82rem;">
+          <a href="verify.html" style="color: var(--brand-secondary); text-decoration: none; font-weight: 700;">
+            🔍 Public Certificate Verification Portal
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    function fillCreds(email, pass) {
+      document.getElementById('login-email').value = email;
+      document.getElementById('login-password').value = pass;
+    }
+
+    const form = document.getElementById('login-form');
+    const submitBtn = document.getElementById('login-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      if (!email || !password) {
+        showToast('Please enter both email and password.', 'error');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>Signing in...</span>';
+
+      try {
+        await Auth.login(email, password);
+      } catch (err) {
+        showToast(err.message || 'Login failed. Please check your credentials.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Sign In to Account</span>';
+      }
+    });
+  </script>
+</body>
+</html>

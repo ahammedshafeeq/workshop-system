@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRIX Workshops | Workshop Registration & Certificate Issue System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=4.0">
+  <style>
+    /* Sticky Glass Header */
+    .landing-header {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 48px;
+      height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    }
+
+    .landing-nav {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .landing-nav a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 700;
+      transition: color 0.15s;
+    }
+
+    .landing-nav a:hover {
+      color: var(--brand-primary-dark);
+    }
+
+    /* Hero Section with Teal Glow */
+    .hero-section {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 50%, #F0FDFA 100%);
+      padding: 76px 24px 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .hero-section::before {
+      content: "";
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 750px;
+      height: 360px;
+      background: radial-gradient(circle, rgba(45, 212, 191, 0.16) 0%, rgba(255, 255, 255, 0) 70%);
+      filter: blur(50px);
+      z-index: 0;
+    }
+
+    .hero-content-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+
+    .ktu-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      background: var(--brand-tint);
+      color: var(--brand-primary-dark);
+      border-radius: var(--radius-full);
+      font-size: 0.82rem;
+      font-weight: 800;
+      margin-bottom: 24px;
+      border: 1px solid var(--brand-border);
+      box-shadow: 0 2px 6px rgba(13, 148, 136, 0.08);
+    }
+
+    .hero-title {
+      font-size: 3.2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-main);
+      margin-bottom: 20px;
+      line-height: 1.15;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, var(--brand-primary-dark), var(--brand-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 700px;
+      margin: 0 auto 34px;
+      line-height: 1.6;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Quick Verify Banner Card */
+    .verify-box-card {
+      max-width: 660px;
+      margin: -36px auto 50px;
+      background: #FFFFFF;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 26px 30px;
+      box-shadow: 0 12px 30px -5px rgba(13, 148, 136, 0.12);
+      position: relative;
+      z-index: 10;
+    }
+
+    .verify-box-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .verify-icon-box {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: var(--brand-tint);
+      color: var(--brand-primary);
+      border: 1px solid var(--brand-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .verify-title-text h4 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .verify-title-text p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* Workshop Section */
+    .workshops-preview-section {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 30px 24px 80px;
+    }
+
+    .section-head {
+      margin-bottom: 38px;
+      text-align: center;
+    }
+
+    .section-head h2 {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .section-head p {
+      color: var(--text-secondary);
+      font-size: 0.98rem;
+      margin-top: 6px;
+    }
+
+    .workshop-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 26px;
+    }
+
+    .ws-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 26px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .ws-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px -4px rgba(13, 148, 136, 0.12);
+      border-color: var(--brand-border);
+    }
+
+    .ws-category {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--brand-primary-dark);
+      background: var(--brand-tint);
+      border: 1px solid var(--brand-border);
+      padding: 4px 11px;
+      border-radius: var(--radius-full);
+      margin-bottom: 12px;
+    }
+
+    .ws-title {
+      font-size: 1.18rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.35;
+      margin-bottom: 8px;
+    }
+
+    .ws-desc {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 18px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .ws-meta-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-light);
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+
+    .ws-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Footer */
+    .landing-footer {
+      background: #FFFFFF;
+      border-top: 1px solid var(--border-color);
+      padding: 40px 24px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="toast-container"></div>
+
+  <!-- Glass Header -->
+  <header class="landing-header">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div class="brand-icon-box">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          <line x1="12" y1="6" x2="16" y2="6"></line>
+          <line x1="12" y1="10" x2="16" y2="10"></line>
+        </svg>
+      </div>
+      <div>
+        <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--brand-primary-dark); line-height: 1.1;">TRIX WORKSHOPS</h2>
+        <span style="font-size: 0.72rem; font-weight: 700; color: var(--brand-primary); text-transform: uppercase;">KTU CSE Department</span>
+      </div>
+    </div>
+
+    <nav class="landing-nav">
+      <a href="workshops.html">Workshops</a>
+      <a href="verify.html">Verify Certificate</a>
+      <a href="login.html" class="btn btn-secondary btn-sm">Sign In</a>
+      <a href="register.html" class="btn btn-primary btn-sm">Join as Student</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content-wrap">
+      <div class="ktu-badge">
+        <span>✦ KTU B.Tech S3 Computer Science & Engineering</span>
+      </div>
+      <h1 class="hero-title">
+        Workshop Registration &<br><span>Certificate Issue System</span>
+      </h1>
+      <p class="hero-desc">
+        Automate the entire academic workshop lifecycle: from online student enrollment and real-time attendance verification to cryptographic PDF certificate generation with QR code validation.
+      </p>
+
+      <div class="hero-cta">
+        <a href="workshops.html" class="btn btn-primary btn-lg">Browse Upcoming Workshops →</a>
+        <a href="login.html" class="btn btn-secondary btn-lg">Organizer / Admin Login</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Verification Floating Card -->
+  <div class="verify-box-card">
+    <div class="verify-box-header">
+      <div class="verify-icon-box">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="12" cy="8" r="7"></circle>
+          <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+        </svg>
+      </div>
+      <div class="verify-title-text">
+        <h4>Instant Certificate Verification</h4>
+        <p>Verify authenticity of university certificates issued by Group TRIX</p>
+      </div>
+    </div>
+
+    <form id="quick-verify-form" style="display: flex; gap: 10px;">
+      <input type="text" id="quick-verify-input" class="form-input" placeholder="e.g. V-TRIX01 or TRIX-CERT-2026-KTU001" required>
+      <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Verify Authenticity</button>
+    </form>
+  </div>
+
+  <!-- Workshops Section -->
+  <section class="workshops-preview-section">
+    <div class="section-head">
+      <h2>Featured Academic Workshops</h2>
+      <p>Reserve your seat in faculty and industry-led sessions across cutting-edge CS domains.</p>
+    </div>
+
+    <div id="workshops-grid" class="workshop-cards-grid">
+      <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-secondary);">
+        Loading scheduled workshops...
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px;">
+      <a href="workshops.html" class="btn btn-secondary btn-lg">
+        View All Workshops & Categories →
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <p><strong>Workshop Registration & Certificate Issue System</strong> • Developed by Group TRIX</p>
+    <p style="margin-top: 4px; font-size: 0.8rem; color: var(--text-muted);">Department of Computer Science and Engineering • APJ Abdul Kalam Technological University</p>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script>
+    // Quick verify redirect
+    document.getElementById('quick-verify-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const code = document.getElementById('quick-verify-input').value.trim();
+      if (code) {
+        window.location.href = `verify.html?code=${encodeURIComponent(code)}`;
+      }
+    });
+
+    // Load workshops
+    async function loadWorkshops() {
+      try {
+        const workshops = await API.get('/api/workshops');
+        const grid = document.getElementById('workshops-grid');
+
+        if (!workshops || workshops.length === 0) {
+          grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px;">No workshops scheduled currently.</div>';
+          return;
+        }
+
+        grid.innerHTML = workshops.slice(0, 6).map(w => `
+          <div class="ws-card">
+            <div>
+              <div class="ws-category">${escapeHtml(w.category)}</div>
+              <h3 class="ws-title">${escapeHtml(w.title)}</h3>
+              <p class="ws-desc">${escapeHtml(w.description || 'Hands-on technical workshop.')}</p>
+            </div>
+            <div>
+              <div class="ws-meta-row">
+                <div class="ws-meta-item">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  <span>${formatDate(w.workshopDate)} • ${formatTime(w.startTime)} - ${formatTime(w.endTime)}</span>
+                </div>
+                <div class="ws-meta-item">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  <span>${escapeHtml(w.venue)}</span>
+                </div>
+                <div class="ws-meta-item" style="justify-content: space-between; margin-top: 6px;">
+                  <span class="badge ${w.availableSeats > 0 ? 'badge-success' : 'badge-danger'}">
+                    ${w.availableSeats > 0 ? `${w.availableSeats} seats left` : 'Fully Booked'}
+                  </span>
+                  <span class="badge ${w.status === 'UPCOMING' ? 'badge-warning' : (w.status === 'ONGOING' ? 'badge-info' : 'badge-primary')}">
+                    ${w.status}
+                  </span>
+                </div>
+              </div>
+              <a href="workshops.html?id=${w.workshopId}" class="btn btn-primary" style="width: 100%;">
+                View Details & Register
+              </a>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadWorkshops();
+  </script>
+</body>
+</html>
