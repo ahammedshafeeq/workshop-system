@@ -37,10 +37,16 @@ public class AttendanceRepository {
     };
 
     public void saveOrUpdate(Long registrationId, Long workshopId, Long participantId, String status, String recordedBy) {
-        String sql = "INSERT INTO attendance (registration_id, workshop_id, participant_id, attendance_status, recorded_at, recorded_by) " +
-                     "VALUES (?, ?, ?, ?, ?, ?) " +
-                     "ON DUPLICATE KEY UPDATE attendance_status = VALUES(attendance_status), recorded_at = VALUES(recorded_at), recorded_by = VALUES(recorded_by)";
-        jdbcTemplate.update(sql, registrationId, workshopId, participantId, status, Timestamp.valueOf(LocalDateTime.now()), recordedBy);
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM attendance WHERE registration_id = ?", Integer.class, registrationId);
+        Timestamp now = Timestamp.valueOf(LocalDateTime.now());
+        if (count != null && count > 0) {
+            String updateSql = "UPDATE attendance SET attendance_status = ?, recorded_at = ?, recorded_by = ? WHERE registration_id = ?";
+            jdbcTemplate.update(updateSql, status, now, recordedBy, registrationId);
+        } else {
+            String insertSql = "INSERT INTO attendance (registration_id, workshop_id, participant_id, attendance_status, recorded_at, recorded_by) VALUES (?, ?, ?, ?, ?, ?)";
+            jdbcTemplate.update(insertSql, registrationId, workshopId, participantId, status, now, recordedBy);
+        }
     }
 
     public List<Attendance> findByWorkshopId(Long workshopId) {
