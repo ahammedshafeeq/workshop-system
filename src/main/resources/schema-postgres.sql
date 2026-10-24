@@ -1,5 +1,5 @@
 -- Workshop Registration & Certificate Issue System
--- PostgreSQL Auto-Schema for Render
+-- PostgreSQL Auto-Schema for Render & Cloud Deployment
 
 -- 1. USERS TABLE
 CREATE TABLE IF NOT EXISTS users (
@@ -77,8 +77,8 @@ CREATE TABLE IF NOT EXISTS certificates (
     certificate_number VARCHAR(100) NOT NULL UNIQUE,
     verification_code VARCHAR(50) NOT NULL UNIQUE,
     certificate_status VARCHAR(20) NOT NULL DEFAULT 'GENERATED',
-    is_valid BOOLEAN NOT NULL DEFAULT TRUE,
-    issued_at TIMESTAMP NULL,
+    eligibility_verified BOOLEAN NOT NULL DEFAULT TRUE,
+    issue_date DATE NOT NULL DEFAULT CURRENT_DATE,
     file_path VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -90,12 +90,10 @@ CREATE TABLE IF NOT EXISTS certificates (
 -- 6. AUDIT LOGS TABLE
 CREATE TABLE IF NOT EXISTS audit_logs (
     log_id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NULL,
-    action_type VARCHAR(50) NOT NULL,
-    entity_name VARCHAR(50) NOT NULL,
+    actor_email VARCHAR(150) NOT NULL,
+    action VARCHAR(50) NOT NULL,
+    entity_type VARCHAR(50) NOT NULL,
     entity_id BIGINT NULL,
     details TEXT,
-    ip_address VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

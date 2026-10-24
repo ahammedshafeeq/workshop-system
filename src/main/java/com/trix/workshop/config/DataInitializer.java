@@ -8,12 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
+import java.util.Optional;
 
 @Component
 @Order(2)
@@ -27,6 +28,7 @@ public class DataInitializer implements CommandLineRunner {
     private final CertificateRepository certificateRepository;
     private final PasswordEncoder passwordEncoder;
     private final PdfCertificateGenerator pdfGenerator;
+    private final JdbcTemplate jdbcTemplate;
 
     public DataInitializer(UserRepository userRepository,
                            WorkshopRepository workshopRepository,
@@ -34,7 +36,8 @@ public class DataInitializer implements CommandLineRunner {
                            AttendanceRepository attendanceRepository,
                            CertificateRepository certificateRepository,
                            PasswordEncoder passwordEncoder,
-                           PdfCertificateGenerator pdfGenerator) {
+                           PdfCertificateGenerator pdfGenerator,
+                           JdbcTemplate jdbcTemplate) {
         this.userRepository = userRepository;
         this.workshopRepository = workshopRepository;
         this.registrationRepository = registrationRepository;
@@ -42,81 +45,91 @@ public class DataInitializer implements CommandLineRunner {
         this.certificateRepository = certificateRepository;
         this.passwordEncoder = passwordEncoder;
         this.pdfGenerator = pdfGenerator;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public void run(String... args) {
         try {
-            if (userRepository.findByEmail("admin@trix.edu").isEmpty()) {
-                log.info("Initializing demo data for TRIX Workshop System...");
-                seedData();
-                log.info("Demo data initialization complete.");
-            }
-
-            if (userRepository.findByEmail("admin@trix.com").isEmpty()) {
-                User adminCom = new User();
-                adminCom.setFullName("Dr. Anand Varma");
-                adminCom.setEmail("admin@trix.com");
-                adminCom.setPasswordHash(passwordEncoder.encode("admin123"));
-                adminCom.setRole("ADMIN");
-                adminCom.setPhone("+91 94471 23456");
-                adminCom.setDepartment("Computer Science and Engineering");
-                adminCom.setInstitution("College of Engineering Trivandrum");
-                adminCom.setAccountStatus("ACTIVE");
-                userRepository.save(adminCom);
-            }
-
-            if (userRepository.findByEmail("alex@gmail.com").isEmpty()) {
-                User alex = new User(null, "Alex Johnson", "alex@gmail.com", passwordEncoder.encode("student123"),
-                        "PARTICIPANT", "+91 98460 99887", "Computer Science and Engineering", "College of Engineering Trivandrum",
-                        "ACTIVE", null, null);
-                userRepository.save(alex);
-            }
+            log.info("Checking initial demo accounts and workshop inputs...");
+            ensureDemoUsers();
+            ensureSampleWorkshopsAndActivity();
+            log.info("Demo data check complete.");
         } catch (Exception e) {
             log.error("DataInitializer error: ", e);
         }
     }
 
-    private void seedData() {
-        // 1. Create Admin
-        User admin = new User();
-        admin.setFullName("Dr. Anand Varma");
-        admin.setEmail("admin@trix.edu");
-        admin.setPasswordHash(passwordEncoder.encode("Admin@123"));
-        admin.setRole("ADMIN");
-        admin.setPhone("+91 94471 23456");
-        admin.setDepartment("Computer Science and Engineering");
-        admin.setInstitution("College of Engineering Trivandrum");
-        admin.setAccountStatus("ACTIVE");
-        admin = userRepository.save(admin);
+    private void ensureDemoUsers() {
+        // Admin Accounts
+        createUserIfMissing("admin@trix.edu", "Dr. Anand Varma", "Admin@123", "ADMIN",
+                "+91 94471 23456", "Computer Science and Engineering", "College of Engineering Trivandrum");
+        createUserIfMissing("admin@trix.com", "Dr. Anand Varma", "admin123", "ADMIN",
+                "+91 94471 23456", "Computer Science and Engineering", "College of Engineering Trivandrum");
 
-        // 2. Create Participants
-        User rahul = new User(null, "Rahul Nair", "rahul.nair@trix.edu", passwordEncoder.encode("Rahul@123"),
-                "PARTICIPANT", "+91 98460 11223", "Computer Science and Engineering", "College of Engineering Trivandrum",
-                "ACTIVE", null, null);
-        rahul = userRepository.save(rahul);
+        // Student / Participant Demo Accounts
+        createUserIfMissing("alex@gmail.com", "Alex Johnson", "student123", "PARTICIPANT",
+                "+91 98460 99887", "Computer Science and Engineering", "College of Engineering Trivandrum");
+        createUserIfMissing("rahul.nair@trix.edu", "Rahul Nair", "Rahul@123", "PARTICIPANT",
+                "+91 98460 11223", "Computer Science and Engineering", "College of Engineering Trivandrum");
+        createUserIfMissing("sneha.menon@trix.edu", "Sneha Menon", "Sneha@123", "PARTICIPANT",
+                "+91 97455 33445", "Computer Science and Engineering", "Model Engineering College Kochi");
+        createUserIfMissing("arjun.das@trix.edu", "Arjun Das", "Arjun@123", "PARTICIPANT",
+                "+91 94960 55667", "Computer Science and Engineering", "TKM College of Engineering Kollam");
+        createUserIfMissing("anjali.kumar@trix.edu", "Anjali Kumar", "Anjali@123", "PARTICIPANT",
+                "+91 96330 77889", "Electronics and Communication", "Govt Engineering College Barton Hill");
+        createUserIfMissing("fathima.zahra@trix.edu", "Fathima Zahra", "Fathima@123", "PARTICIPANT",
+                "+91 95260 99001", "Artificial Intelligence & Data Science", "Rajagiri School of Engineering");
+    }
 
-        User sneha = new User(null, "Sneha Menon", "sneha.menon@trix.edu", passwordEncoder.encode("Sneha@123"),
-                "PARTICIPANT", "+91 97455 33445", "Computer Science and Engineering", "Model Engineering College Kochi",
-                "ACTIVE", null, null);
-        sneha = userRepository.save(sneha);
+    private User createUserIfMissing(String email, String name, String password, String role,
+                                     String phone, String dept, String inst) {
+        Optional<User> existing = userRepository.findByEmail(email);
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+        User u = new User();
+        u.setFullName(name);
+        u.setEmail(email);
+        u.setPasswordHash(passwordEncoder.encode(password));
+        u.setRole(role);
+        u.setPhone(phone);
+        u.setDepartment(dept);
+        u.setInstitution(inst);
+        u.setAccountStatus("ACTIVE");
+        try {
+            return userRepository.save(u);
+        } catch (Exception e) {
+            log.warn("Could not save user {}: {}", email, e.getMessage());
+            return u;
+        }
+    }
 
-        User arjun = new User(null, "Arjun Das", "arjun.das@trix.edu", passwordEncoder.encode("Arjun@123"),
-                "PARTICIPANT", "+91 94960 55667", "Computer Science and Engineering", "TKM College of Engineering Kollam",
-                "ACTIVE", null, null);
-        arjun = userRepository.save(arjun);
+    private void ensureSampleWorkshopsAndActivity() {
+        Integer workshopCount = 0;
+        try {
+            workshopCount = jdbcTemplate.queryForObject("SELECT count(*) FROM workshops", Integer.class);
+        } catch (Exception ignored) {}
 
-        User anjali = new User(null, "Anjali Kumar", "anjali.kumar@trix.edu", passwordEncoder.encode("Anjali@123"),
-                "PARTICIPANT", "+91 96330 77889", "Electronics and Communication", "Govt Engineering College Barton Hill",
-                "ACTIVE", null, null);
-        anjali = userRepository.save(anjali);
+        if (workshopCount != null && workshopCount > 0) {
+            log.info("Workshops already exist (count: {}). Skipping creation.", workshopCount);
+            return;
+        }
 
-        User fathima = new User(null, "Fathima Zahra", "fathima.zahra@trix.edu", passwordEncoder.encode("Fathima@123"),
-                "PARTICIPANT", "+91 95260 99001", "Artificial Intelligence & Data Science", "Rajagiri School of Engineering",
-                "ACTIVE", null, null);
-        fathima = userRepository.save(fathima);
+        log.info("Seeding realistic academic workshops and demo activities...");
+        User admin = userRepository.findByEmail("admin@trix.edu")
+                .or(() -> userRepository.findByEmail("admin@trix.com"))
+                .orElse(null);
+        Long adminId = admin != null ? admin.getUserId() : null;
 
-        // 3. Create Workshops
+        User rahul = userRepository.findByEmail("rahul.nair@trix.edu")
+                .or(() -> userRepository.findByEmail("alex@gmail.com"))
+                .orElse(null);
+        User sneha = userRepository.findByEmail("sneha.menon@trix.edu").orElse(null);
+        User arjun = userRepository.findByEmail("arjun.das@trix.edu").orElse(null);
+        User anjali = userRepository.findByEmail("anjali.kumar@trix.edu").orElse(null);
+        User fathima = userRepository.findByEmail("fathima.zahra@trix.edu").orElse(null);
+
         LocalDate today = LocalDate.now();
 
         // Workshop 1: Upcoming Cloud Computing
@@ -125,7 +138,7 @@ public class DataInitializer implements CommandLineRunner {
                 "Comprehensive hands-on workshop covering RESTful architecture, containerization with Docker, API Gateway routing, distributed configuration, and resilient microservice communication patterns.",
                 "Cloud Computing",
                 "Prof. Lakshmi Priya",
-                admin.getUserId(),
+                adminId,
                 today.plusDays(10),
                 LocalTime.of(9, 30),
                 LocalTime.of(16, 30),
@@ -142,7 +155,7 @@ public class DataInitializer implements CommandLineRunner {
                 "Explore convolutional neural networks, transfer learning with ResNet, object detection pipelines, and deploying vision models using ONNX and FastAPI.",
                 "AI & Machine Learning",
                 "Dr. Harikrishnan R",
-                admin.getUserId(),
+                adminId,
                 today.plusDays(15),
                 LocalTime.of(10, 0),
                 LocalTime.of(16, 0),
@@ -159,7 +172,7 @@ public class DataInitializer implements CommandLineRunner {
                 "Practical laboratory exercises on OWASP Top 10 vulnerabilities, network packet analysis with Wireshark, secure authentication patterns, and penetration testing fundamentals.",
                 "Cyber Security",
                 "Er. Sanjay Varma",
-                admin.getUserId(),
+                adminId,
                 today,
                 LocalTime.of(9, 0),
                 LocalTime.of(17, 0),
@@ -176,7 +189,7 @@ public class DataInitializer implements CommandLineRunner {
                 "End-to-end full stack architecture building responsive single-page applications, integrating Spring Boot REST APIs, JDBC database access, and secure JWT session workflows.",
                 "Web Technologies",
                 "Prof. Lakshmi Priya",
-                admin.getUserId(),
+                adminId,
                 today.minusDays(5),
                 LocalTime.of(9, 30),
                 LocalTime.of(16, 30),
@@ -193,7 +206,7 @@ public class DataInitializer implements CommandLineRunner {
                 "Interfacing digital sensors, MQTT communication protocols, cloud telemetry ingestion, and edge intelligence inference on embedded single-board computers.",
                 "IoT & Embedded Systems",
                 "Dr. George Mathew",
-                admin.getUserId(),
+                adminId,
                 today.minusDays(12),
                 LocalTime.of(10, 0),
                 LocalTime.of(16, 30),
@@ -204,49 +217,81 @@ public class DataInitializer implements CommandLineRunner {
                 null, null);
         w5 = workshopRepository.save(w5);
 
-        // 4. Create Registrations for Workshop 4 (Completed)
-        // Rahul: Approved, Present, Certificate Issued
-        Registration r1 = registrationRepository.save(new Registration(null, rahul.getUserId(), w4.getWorkshopId(), null, "APPROVED", "Confirmed seat", null, null));
-        attendanceRepository.saveOrUpdate(r1.getRegistrationId(), w4.getWorkshopId(), rahul.getUserId(), "PRESENT", "Dr. Anand Varma");
-        Certificate c1 = certificateRepository.save(new Certificate(null, r1.getRegistrationId(), rahul.getUserId(), w4.getWorkshopId(),
-                "TRIX-CERT-2026-KTU001", "V-TRIX01", "ISSUED", true, today.minusDays(4), null, null, null));
-        generatePdfQuietly(c1.getCertificateId());
+        // Seed Registrations & Attendance for Completed Workshop 4
+        if (w4.getWorkshopId() != null) {
+            try {
+                if (rahul != null && rahul.getUserId() != null) {
+                    Registration r1 = registrationRepository.save(new Registration(null, rahul.getUserId(), w4.getWorkshopId(), null, "APPROVED", "Confirmed seat", null, null));
+                    attendanceRepository.saveOrUpdate(r1.getRegistrationId(), w4.getWorkshopId(), rahul.getUserId(), "PRESENT", "Dr. Anand Varma");
+                    Certificate c1 = certificateRepository.save(new Certificate(null, r1.getRegistrationId(), rahul.getUserId(), w4.getWorkshopId(),
+                            "TRIX-CERT-2026-KTU001", "V-TRIX01", "ISSUED", true, today.minusDays(4), null, null, null));
+                    generatePdfQuietly(c1.getCertificateId());
+                }
 
-        // Sneha: Approved, Present, Certificate Generated
-        Registration r2 = registrationRepository.save(new Registration(null, sneha.getUserId(), w4.getWorkshopId(), null, "APPROVED", "Early registration", null, null));
-        attendanceRepository.saveOrUpdate(r2.getRegistrationId(), w4.getWorkshopId(), sneha.getUserId(), "PRESENT", "Dr. Anand Varma");
-        Certificate c2 = certificateRepository.save(new Certificate(null, r2.getRegistrationId(), sneha.getUserId(), w4.getWorkshopId(),
-                "TRIX-CERT-2026-KTU002", "V-TRIX02", "GENERATED", true, today.minusDays(4), null, null, null));
-        generatePdfQuietly(c2.getCertificateId());
+                if (sneha != null && sneha.getUserId() != null) {
+                    Registration r2 = registrationRepository.save(new Registration(null, sneha.getUserId(), w4.getWorkshopId(), null, "APPROVED", "Early registration", null, null));
+                    attendanceRepository.saveOrUpdate(r2.getRegistrationId(), w4.getWorkshopId(), sneha.getUserId(), "PRESENT", "Dr. Anand Varma");
+                    Certificate c2 = certificateRepository.save(new Certificate(null, r2.getRegistrationId(), sneha.getUserId(), w4.getWorkshopId(),
+                            "TRIX-CERT-2026-KTU002", "V-TRIX02", "GENERATED", true, today.minusDays(4), null, null, null));
+                    generatePdfQuietly(c2.getCertificateId());
+                }
 
-        // Arjun: Approved, Present, Certificate NOT YET GENERATED (ready for demo!)
-        Registration r3 = registrationRepository.save(new Registration(null, arjun.getUserId(), w4.getWorkshopId(), null, "APPROVED", "Confirmed seat", null, null));
-        attendanceRepository.saveOrUpdate(r3.getRegistrationId(), w4.getWorkshopId(), arjun.getUserId(), "PRESENT", "Dr. Anand Varma");
+                if (arjun != null && arjun.getUserId() != null) {
+                    Registration r3 = registrationRepository.save(new Registration(null, arjun.getUserId(), w4.getWorkshopId(), null, "APPROVED", "Confirmed seat", null, null));
+                    attendanceRepository.saveOrUpdate(r3.getRegistrationId(), w4.getWorkshopId(), arjun.getUserId(), "PRESENT", "Dr. Anand Varma");
+                }
 
-        // Anjali: Approved, Absent (Ineligible reason: Absent)
-        Registration r4 = registrationRepository.save(new Registration(null, anjali.getUserId(), w4.getWorkshopId(), null, "APPROVED", "Regular attendee", null, null));
-        attendanceRepository.saveOrUpdate(r4.getRegistrationId(), w4.getWorkshopId(), anjali.getUserId(), "ABSENT", "Dr. Anand Varma");
+                if (anjali != null && anjali.getUserId() != null) {
+                    Registration r4 = registrationRepository.save(new Registration(null, anjali.getUserId(), w4.getWorkshopId(), null, "APPROVED", "Regular attendee", null, null));
+                    attendanceRepository.saveOrUpdate(r4.getRegistrationId(), w4.getWorkshopId(), anjali.getUserId(), "ABSENT", "Dr. Anand Varma");
+                }
 
-        // Fathima: Approved, Not Recorded (Ineligible reason: Awaiting attendance)
-        Registration r5 = registrationRepository.save(new Registration(null, fathima.getUserId(), w4.getWorkshopId(), null, "APPROVED", "Registered online", null, null));
-        attendanceRepository.saveOrUpdate(r5.getRegistrationId(), w4.getWorkshopId(), fathima.getUserId(), "NOT_RECORDED", "SYSTEM_INIT");
+                if (fathima != null && fathima.getUserId() != null) {
+                    Registration r5 = registrationRepository.save(new Registration(null, fathima.getUserId(), w4.getWorkshopId(), null, "APPROVED", "Registered online", null, null));
+                    attendanceRepository.saveOrUpdate(r5.getRegistrationId(), w4.getWorkshopId(), fathima.getUserId(), "NOT_RECORDED", "SYSTEM_INIT");
+                }
+            } catch (Exception e) {
+                log.warn("Workshop 4 registrations note: {}", e.getMessage());
+            }
+        }
 
-        // Registrations for Workshop 3 (Ongoing)
-        Registration r6 = registrationRepository.save(new Registration(null, rahul.getUserId(), w3.getWorkshopId(), null, "APPROVED", "Enrolled", null, null));
-        attendanceRepository.saveOrUpdate(r6.getRegistrationId(), w3.getWorkshopId(), rahul.getUserId(), "NOT_RECORDED", "SYSTEM_INIT");
+        // Seed Registrations for Ongoing Workshop 3
+        if (w3.getWorkshopId() != null) {
+            try {
+                if (rahul != null && rahul.getUserId() != null) {
+                    Registration r6 = registrationRepository.save(new Registration(null, rahul.getUserId(), w3.getWorkshopId(), null, "APPROVED", "Enrolled", null, null));
+                    attendanceRepository.saveOrUpdate(r6.getRegistrationId(), w3.getWorkshopId(), rahul.getUserId(), "NOT_RECORDED", "SYSTEM_INIT");
+                }
+                if (sneha != null && sneha.getUserId() != null) {
+                    Registration r7 = registrationRepository.save(new Registration(null, sneha.getUserId(), w3.getWorkshopId(), null, "APPROVED", "Enrolled", null, null));
+                    attendanceRepository.saveOrUpdate(r7.getRegistrationId(), w3.getWorkshopId(), sneha.getUserId(), "NOT_RECORDED", "SYSTEM_INIT");
+                }
+                if (arjun != null && arjun.getUserId() != null) {
+                    Registration r8 = registrationRepository.save(new Registration(null, arjun.getUserId(), w3.getWorkshopId(), null, "APPROVED", "Enrolled", null, null));
+                    attendanceRepository.saveOrUpdate(r8.getRegistrationId(), w3.getWorkshopId(), arjun.getUserId(), "NOT_RECORDED", "SYSTEM_INIT");
+                }
+            } catch (Exception e) {
+                log.warn("Workshop 3 registrations note: {}", e.getMessage());
+            }
+        }
 
-        Registration r7 = registrationRepository.save(new Registration(null, sneha.getUserId(), w3.getWorkshopId(), null, "APPROVED", "Enrolled", null, null));
-        attendanceRepository.saveOrUpdate(r7.getRegistrationId(), w3.getWorkshopId(), sneha.getUserId(), "NOT_RECORDED", "SYSTEM_INIT");
-
-        Registration r8 = registrationRepository.save(new Registration(null, arjun.getUserId(), w3.getWorkshopId(), null, "APPROVED", "Enrolled", null, null));
-        attendanceRepository.saveOrUpdate(r8.getRegistrationId(), w3.getWorkshopId(), arjun.getUserId(), "NOT_RECORDED", "SYSTEM_INIT");
-
-        // Registration for Workshop 1 (Upcoming)
-        registrationRepository.save(new Registration(null, rahul.getUserId(), w1.getWorkshopId(), null, "APPROVED", "Seat reserved", null, null));
-        registrationRepository.save(new Registration(null, anjali.getUserId(), w1.getWorkshopId(), null, "APPROVED", "Seat reserved", null, null));
+        // Seed Registrations for Upcoming Workshop 1
+        if (w1.getWorkshopId() != null) {
+            try {
+                if (rahul != null && rahul.getUserId() != null) {
+                    registrationRepository.save(new Registration(null, rahul.getUserId(), w1.getWorkshopId(), null, "APPROVED", "Seat reserved", null, null));
+                }
+                if (anjali != null && anjali.getUserId() != null) {
+                    registrationRepository.save(new Registration(null, anjali.getUserId(), w1.getWorkshopId(), null, "APPROVED", "Seat reserved", null, null));
+                }
+            } catch (Exception e) {
+                log.warn("Workshop 1 registrations note: {}", e.getMessage());
+            }
+        }
     }
 
     private void generatePdfQuietly(Long certId) {
+        if (certId == null) return;
         try {
             CertificateDto dto = certificateRepository.findDtoById(certId).orElse(null);
             if (dto != null) {
@@ -257,4 +302,3 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 }
-

@@ -82,6 +82,13 @@ public class CertificateRepository {
         Number key = extractKey(keyHolder, "certificate_id");
         if (key != null) {
             c.setCertificateId(key.longValue());
+        } else {
+            try {
+                Long id = jdbcTemplate.queryForObject(
+                        "SELECT certificate_id FROM certificates WHERE certificate_number = ?",
+                        Long.class, c.getCertificateNumber());
+                c.setCertificateId(id);
+            } catch (Exception ignored) {}
         }
         return c;
     }
@@ -91,13 +98,20 @@ public class CertificateRepository {
         try {
             if (keyHolder.getKey() != null) return keyHolder.getKey();
         } catch (Exception ignored) {}
-        if (keyHolder.getKeys() != null) {
-            for (java.util.Map.Entry<String, Object> entry : keyHolder.getKeys().entrySet()) {
-                if (entry.getKey().equalsIgnoreCase(column) && entry.getValue() instanceof Number) {
-                    return (Number) entry.getValue();
+        try {
+            if (keyHolder.getKeys() != null && !keyHolder.getKeys().isEmpty()) {
+                for (java.util.Map.Entry<String, Object> entry : keyHolder.getKeys().entrySet()) {
+                    if (entry.getKey().equalsIgnoreCase(column) && entry.getValue() instanceof Number) {
+                        return (Number) entry.getValue();
+                    }
+                }
+                for (Object val : keyHolder.getKeys().values()) {
+                    if (val instanceof Number) {
+                        return (Number) val;
+                    }
                 }
             }
-        }
+        } catch (Exception ignored) {}
         return null;
     }
 

@@ -1,16 +1,8 @@
 -- Workshop Registration & Certificate Issue System
--- PostgreSQL Schema for Render PostgreSQL
-
--- Drop tables in reverse dependency order if resetting
-DROP TABLE IF EXISTS audit_logs CASCADE;
-DROP TABLE IF EXISTS certificates CASCADE;
-DROP TABLE IF EXISTS attendance CASCADE;
-DROP TABLE IF EXISTS registrations CASCADE;
-DROP TABLE IF EXISTS workshops CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
+-- PostgreSQL Auto-Schema for Render & Cloud Deployment
 
 -- 1. USERS TABLE
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id BIGSERIAL PRIMARY KEY,
     full_name VARCHAR(150) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
@@ -23,11 +15,11 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX idx_user_email ON users(email);
-CREATE INDEX idx_user_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_user_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_user_role ON users(role);
 
 -- 2. WORKSHOPS TABLE
-CREATE TABLE workshops (
+CREATE TABLE IF NOT EXISTS workshops (
     workshop_id BIGSERIAL PRIMARY KEY,
     title VARCHAR(200) NOT NULL,
     description TEXT,
@@ -47,7 +39,7 @@ CREATE TABLE workshops (
 );
 
 -- 3. REGISTRATIONS TABLE
-CREATE TABLE registrations (
+CREATE TABLE IF NOT EXISTS registrations (
     registration_id BIGSERIAL PRIMARY KEY,
     participant_id BIGINT NOT NULL,
     workshop_id BIGINT NOT NULL,
@@ -62,7 +54,7 @@ CREATE TABLE registrations (
 );
 
 -- 4. ATTENDANCE TABLE
-CREATE TABLE attendance (
+CREATE TABLE IF NOT EXISTS attendance (
     attendance_id BIGSERIAL PRIMARY KEY,
     registration_id BIGINT NOT NULL UNIQUE,
     workshop_id BIGINT NOT NULL,
@@ -77,7 +69,7 @@ CREATE TABLE attendance (
 );
 
 -- 5. CERTIFICATES TABLE
-CREATE TABLE certificates (
+CREATE TABLE IF NOT EXISTS certificates (
     certificate_id BIGSERIAL PRIMARY KEY,
     registration_id BIGINT NOT NULL UNIQUE,
     participant_id BIGINT NOT NULL,
@@ -85,8 +77,8 @@ CREATE TABLE certificates (
     certificate_number VARCHAR(100) NOT NULL UNIQUE,
     verification_code VARCHAR(50) NOT NULL UNIQUE,
     certificate_status VARCHAR(20) NOT NULL DEFAULT 'GENERATED',
-    is_valid BOOLEAN NOT NULL DEFAULT TRUE,
-    issued_at TIMESTAMP NULL,
+    eligibility_verified BOOLEAN NOT NULL DEFAULT TRUE,
+    issue_date DATE NOT NULL DEFAULT CURRENT_DATE,
     file_path VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -96,14 +88,12 @@ CREATE TABLE certificates (
 );
 
 -- 6. AUDIT LOGS TABLE
-CREATE TABLE audit_logs (
+CREATE TABLE IF NOT EXISTS audit_logs (
     log_id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NULL,
-    action_type VARCHAR(50) NOT NULL,
-    entity_name VARCHAR(50) NOT NULL,
+    actor_email VARCHAR(150) NOT NULL,
+    action VARCHAR(50) NOT NULL,
+    entity_type VARCHAR(50) NOT NULL,
     entity_id BIGINT NULL,
     details TEXT,
-    ip_address VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

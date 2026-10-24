@@ -69,6 +69,13 @@ public class WorkshopRepository {
         Number key = extractKey(keyHolder, "workshop_id");
         if (key != null) {
             w.setWorkshopId(key.longValue());
+        } else {
+            try {
+                Long id = jdbcTemplate.queryForObject(
+                        "SELECT workshop_id FROM workshops WHERE title = ? ORDER BY workshop_id DESC LIMIT 1",
+                        Long.class, w.getTitle());
+                w.setWorkshopId(id);
+            } catch (Exception ignored) {}
         }
         return w;
     }
@@ -78,13 +85,20 @@ public class WorkshopRepository {
         try {
             if (keyHolder.getKey() != null) return keyHolder.getKey();
         } catch (Exception ignored) {}
-        if (keyHolder.getKeys() != null) {
-            for (java.util.Map.Entry<String, Object> entry : keyHolder.getKeys().entrySet()) {
-                if (entry.getKey().equalsIgnoreCase(column) && entry.getValue() instanceof Number) {
-                    return (Number) entry.getValue();
+        try {
+            if (keyHolder.getKeys() != null && !keyHolder.getKeys().isEmpty()) {
+                for (java.util.Map.Entry<String, Object> entry : keyHolder.getKeys().entrySet()) {
+                    if (entry.getKey().equalsIgnoreCase(column) && entry.getValue() instanceof Number) {
+                        return (Number) entry.getValue();
+                    }
+                }
+                for (Object val : keyHolder.getKeys().values()) {
+                    if (val instanceof Number) {
+                        return (Number) val;
+                    }
                 }
             }
-        }
+        } catch (Exception ignored) {}
         return null;
     }
 

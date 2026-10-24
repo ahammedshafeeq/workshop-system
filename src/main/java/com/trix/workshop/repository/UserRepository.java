@@ -55,6 +55,8 @@ public class UserRepository {
         Number key = extractKey(keyHolder, "user_id");
         if (key != null) {
             user.setUserId(key.longValue());
+        } else {
+            findByEmail(user.getEmail()).ifPresent(saved -> user.setUserId(saved.getUserId()));
         }
         return user;
     }
@@ -64,13 +66,20 @@ public class UserRepository {
         try {
             if (keyHolder.getKey() != null) return keyHolder.getKey();
         } catch (Exception ignored) {}
-        if (keyHolder.getKeys() != null) {
-            for (java.util.Map.Entry<String, Object> entry : keyHolder.getKeys().entrySet()) {
-                if (entry.getKey().equalsIgnoreCase(column) && entry.getValue() instanceof Number) {
-                    return (Number) entry.getValue();
+        try {
+            if (keyHolder.getKeys() != null && !keyHolder.getKeys().isEmpty()) {
+                for (java.util.Map.Entry<String, Object> entry : keyHolder.getKeys().entrySet()) {
+                    if (entry.getKey().equalsIgnoreCase(column) && entry.getValue() instanceof Number) {
+                        return (Number) entry.getValue();
+                    }
+                }
+                for (Object val : keyHolder.getKeys().values()) {
+                    if (val instanceof Number) {
+                        return (Number) val;
+                    }
                 }
             }
-        }
+        } catch (Exception ignored) {}
         return null;
     }
 

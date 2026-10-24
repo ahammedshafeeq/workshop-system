@@ -74,6 +74,13 @@ public class RegistrationRepository {
         Number key = extractKey(keyHolder, "registration_id");
         if (key != null) {
             r.setRegistrationId(key.longValue());
+        } else {
+            try {
+                Long id = jdbcTemplate.queryForObject(
+                        "SELECT registration_id FROM registrations WHERE participant_id = ? AND workshop_id = ? ORDER BY registration_id DESC LIMIT 1",
+                        Long.class, r.getParticipantId(), r.getWorkshopId());
+                r.setRegistrationId(id);
+            } catch (Exception ignored) {}
         }
         return r;
     }
@@ -83,13 +90,20 @@ public class RegistrationRepository {
         try {
             if (keyHolder.getKey() != null) return keyHolder.getKey();
         } catch (Exception ignored) {}
-        if (keyHolder.getKeys() != null) {
-            for (java.util.Map.Entry<String, Object> entry : keyHolder.getKeys().entrySet()) {
-                if (entry.getKey().equalsIgnoreCase(column) && entry.getValue() instanceof Number) {
-                    return (Number) entry.getValue();
+        try {
+            if (keyHolder.getKeys() != null && !keyHolder.getKeys().isEmpty()) {
+                for (java.util.Map.Entry<String, Object> entry : keyHolder.getKeys().entrySet()) {
+                    if (entry.getKey().equalsIgnoreCase(column) && entry.getValue() instanceof Number) {
+                        return (Number) entry.getValue();
+                    }
+                }
+                for (Object val : keyHolder.getKeys().values()) {
+                    if (val instanceof Number) {
+                        return (Number) val;
+                    }
                 }
             }
-        }
+        } catch (Exception ignored) {}
         return null;
     }
 

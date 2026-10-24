@@ -31,16 +31,20 @@ public class DatabaseAutoMigrator implements CommandLineRunner {
             String dbProduct = con.getMetaData().getDatabaseProductName().toLowerCase();
             log.info("DatabaseAutoMigrator: Connected to database [{}]", dbProduct);
 
-            boolean tablesExist = false;
+            boolean allTablesExist = false;
             try {
                 jdbcTemplate.queryForObject("SELECT count(*) FROM users", Integer.class);
-                tablesExist = true;
+                jdbcTemplate.queryForObject("SELECT count(*) FROM workshops", Integer.class);
+                jdbcTemplate.queryForObject("SELECT count(*) FROM registrations", Integer.class);
+                jdbcTemplate.queryForObject("SELECT count(*) FROM attendance", Integer.class);
+                jdbcTemplate.queryForObject("SELECT count(*) FROM certificates", Integer.class);
+                allTablesExist = true;
             } catch (Exception e) {
-                tablesExist = false;
+                allTablesExist = false;
             }
 
-            if (!tablesExist) {
-                log.info("DatabaseAutoMigrator: No tables found. Creating schema automatically for [{}]...", dbProduct);
+            if (!allTablesExist) {
+                log.info("DatabaseAutoMigrator: Missing tables detected. Executing schema script for [{}]...", dbProduct);
                 ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
                 populator.setContinueOnError(true);
 
@@ -51,9 +55,23 @@ public class DatabaseAutoMigrator implements CommandLineRunner {
                 }
 
                 populator.execute(dataSource);
-                log.info("DatabaseAutoMigrator: Schema created successfully!");
+                log.info("DatabaseAutoMigrator: Schema script executed successfully!");
             } else {
-                log.info("DatabaseAutoMigrator: Tables already exist. Schema creation skipped.");
+                log.info("DatabaseAutoMigrator: All core tables verified.");
+            }
+
+            // For PostgreSQL: Ensure any older schema versions have updated column definitions
+            if (dbProduct.contains("postgres")) {
+                try {
+                    jdbcTemplate.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS eligibility_verified BOOLEAN NOT NULL DEFAULT TRUE;");
+                    jdbcTemplate.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS issue_date DATE NOT NULL DEFAULT CURRENT_DATE;");
+                    jdbcTemplate.execute("ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS actor_email VARCHAR(150);");
+                    jdbcTemplate.execute("ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS action VARCHAR(50);");
+                    jdbcTemplate.execute("ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS entity_type VARCHAR(50);");
+                    log.info("DatabaseAutoMigrator: PostgreSQL schema column migrations verified.");
+                } catch (Exception e) {
+                    log.warn("DatabaseAutoMigrator: Schema column migration note: {}", e.getMessage());
+                }
             }
         } catch (Exception e) {
             log.error("DatabaseAutoMigrator error: ", e);
