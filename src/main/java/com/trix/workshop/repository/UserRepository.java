@@ -40,7 +40,7 @@ public class UserRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(sql, new String[] { "user_id" });
             ps.setString(1, user.getFullName());
             ps.setString(2, user.getEmail().toLowerCase().trim());
             ps.setString(3, user.getPasswordHash());
@@ -52,10 +52,26 @@ public class UserRepository {
             return ps;
         }, keyHolder);
 
-        if (keyHolder.getKey() != null) {
-            user.setUserId(keyHolder.getKey().longValue());
+        Number key = extractKey(keyHolder, "user_id");
+        if (key != null) {
+            user.setUserId(key.longValue());
         }
         return user;
+    }
+
+    private Number extractKey(KeyHolder keyHolder, String column) {
+        if (keyHolder == null) return null;
+        try {
+            if (keyHolder.getKey() != null) return keyHolder.getKey();
+        } catch (Exception ignored) {}
+        if (keyHolder.getKeys() != null) {
+            for (java.util.Map.Entry<String, Object> entry : keyHolder.getKeys().entrySet()) {
+                if (entry.getKey().equalsIgnoreCase(column) && entry.getValue() instanceof Number) {
+                    return (Number) entry.getValue();
+                }
+            }
+        }
+        return null;
     }
 
     public Optional<User> findById(Long userId) {

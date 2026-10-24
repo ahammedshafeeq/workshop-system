@@ -7,6 +7,7 @@ import com.trix.workshop.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Component
+@Order(2)
 public class DataInitializer implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
 
@@ -49,6 +51,26 @@ public class DataInitializer implements CommandLineRunner {
                 log.info("Initializing demo data for TRIX Workshop System...");
                 seedData();
                 log.info("Demo data initialization complete.");
+            }
+
+            if (userRepository.findByEmail("admin@trix.com").isEmpty()) {
+                User adminCom = new User();
+                adminCom.setFullName("Dr. Anand Varma");
+                adminCom.setEmail("admin@trix.com");
+                adminCom.setPasswordHash(passwordEncoder.encode("admin123"));
+                adminCom.setRole("ADMIN");
+                adminCom.setPhone("+91 94471 23456");
+                adminCom.setDepartment("Computer Science and Engineering");
+                adminCom.setInstitution("College of Engineering Trivandrum");
+                adminCom.setAccountStatus("ACTIVE");
+                userRepository.save(adminCom);
+            }
+
+            if (userRepository.findByEmail("alex@gmail.com").isEmpty()) {
+                User alex = new User(null, "Alex Johnson", "alex@gmail.com", passwordEncoder.encode("student123"),
+                        "PARTICIPANT", "+91 98460 99887", "Computer Science and Engineering", "College of Engineering Trivandrum",
+                        "ACTIVE", null, null);
+                userRepository.save(alex);
             }
         } catch (Exception e) {
             log.error("DataInitializer error: ", e);

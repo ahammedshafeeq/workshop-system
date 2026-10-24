@@ -46,7 +46,7 @@ public class WorkshopRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(sql, new String[] { "workshop_id" });
             ps.setString(1, w.getTitle());
             ps.setString(2, w.getDescription());
             ps.setString(3, w.getCategory());
@@ -66,10 +66,26 @@ public class WorkshopRepository {
             return ps;
         }, keyHolder);
 
-        if (keyHolder.getKey() != null) {
-            w.setWorkshopId(keyHolder.getKey().longValue());
+        Number key = extractKey(keyHolder, "workshop_id");
+        if (key != null) {
+            w.setWorkshopId(key.longValue());
         }
         return w;
+    }
+
+    private Number extractKey(KeyHolder keyHolder, String column) {
+        if (keyHolder == null) return null;
+        try {
+            if (keyHolder.getKey() != null) return keyHolder.getKey();
+        } catch (Exception ignored) {}
+        if (keyHolder.getKeys() != null) {
+            for (java.util.Map.Entry<String, Object> entry : keyHolder.getKeys().entrySet()) {
+                if (entry.getKey().equalsIgnoreCase(column) && entry.getValue() instanceof Number) {
+                    return (Number) entry.getValue();
+                }
+            }
+        }
+        return null;
     }
 
     public void update(Workshop w) {

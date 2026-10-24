@@ -63,7 +63,7 @@ public class RegistrationRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(sql, new String[] { "registration_id" });
             ps.setLong(1, r.getParticipantId());
             ps.setLong(2, r.getWorkshopId());
             ps.setString(3, r.getRegistrationStatus() != null ? r.getRegistrationStatus() : "APPROVED");
@@ -71,10 +71,26 @@ public class RegistrationRepository {
             return ps;
         }, keyHolder);
 
-        if (keyHolder.getKey() != null) {
-            r.setRegistrationId(keyHolder.getKey().longValue());
+        Number key = extractKey(keyHolder, "registration_id");
+        if (key != null) {
+            r.setRegistrationId(key.longValue());
         }
         return r;
+    }
+
+    private Number extractKey(KeyHolder keyHolder, String column) {
+        if (keyHolder == null) return null;
+        try {
+            if (keyHolder.getKey() != null) return keyHolder.getKey();
+        } catch (Exception ignored) {}
+        if (keyHolder.getKeys() != null) {
+            for (java.util.Map.Entry<String, Object> entry : keyHolder.getKeys().entrySet()) {
+                if (entry.getKey().equalsIgnoreCase(column) && entry.getValue() instanceof Number) {
+                    return (Number) entry.getValue();
+                }
+            }
+        }
+        return null;
     }
 
     public Optional<Registration> findById(Long id) {
