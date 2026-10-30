@@ -37,8 +37,27 @@ public class AuthServiceTest {
     void testInvalidPasswordThrows() {
         MockHttpSession session = new MockHttpSession();
         LoginRequest req = new LoginRequest("admin@trix.edu", "WrongPassword123");
-
         assertThrows(BusinessRuleException.class, () -> authService.login(req, session));
+    }
+
+    @Test
+    @DisplayName("Verify participant registration succeeds and logs in")
+    void testParticipantRegistration() {
+        MockHttpSession session = new MockHttpSession();
+        com.trix.workshop.dto.RegisterRequest req = new com.trix.workshop.dto.RegisterRequest();
+        req.setFullName("Test Participant");
+        req.setEmail("newuser" + System.currentTimeMillis() + "@example.com");
+        req.setPassword("Password123!");
+        req.setPhone("+91 99999 88888");
+        req.setDepartment("Computer Science");
+        req.setInstitution("Engineering College");
+
+        UserDto user = authService.register(req, session);
+
+        assertNotNull(user);
+        assertNotNull(user.getUserId());
+        assertEquals("PARTICIPANT", user.getRole());
+        assertNotNull(session.getAttribute(AuthService.SESSION_USER_KEY));
     }
 }
 
