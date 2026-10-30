@@ -66,7 +66,7 @@ public class CertificateRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[] { "certificate_id" });
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, c.getRegistrationId());
             ps.setLong(2, c.getParticipantId());
             ps.setLong(3, c.getWorkshopId());

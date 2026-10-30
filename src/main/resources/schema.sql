@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS workshops (
     venue VARCHAR(150) NOT NULL,
     capacity INT NOT NULL,
     registration_deadline DATE NOT NULL,
+    certificate_template VARCHAR(50) DEFAULT 'classic_gold',
     status ENUM('UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED') NOT NULL DEFAULT 'UPCOMING',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -91,6 +92,11 @@ CREATE TABLE IF NOT EXISTS certificates (
     participant_id BIGINT NOT NULL,
     workshop_id BIGINT NOT NULL,
     certificate_number VARCHAR(64) NOT NULL UNIQUE,
+    certificate_code VARCHAR(30) NULL UNIQUE,
+    template_id VARCHAR(30) DEFAULT 'classic_gold',
+    certificate_type ENUM('Participation', 'Completion', 'Appreciation') DEFAULT 'Participation',
+    issued_on DATETIME DEFAULT CURRENT_TIMESTAMP,
+    issued_by BIGINT NULL,
     verification_code VARCHAR(32) NOT NULL UNIQUE,
     certificate_status ENUM('GENERATED', 'ISSUED', 'REVOKED') NOT NULL DEFAULT 'GENERATED',
     eligibility_verified BOOLEAN NOT NULL DEFAULT TRUE,
@@ -99,12 +105,14 @@ CREATE TABLE IF NOT EXISTS certificates (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_cert_number (certificate_number),
+    INDEX idx_cert_code (certificate_code),
     INDEX idx_cert_verification (verification_code),
     INDEX idx_cert_participant (participant_id),
     INDEX idx_cert_workshop (workshop_id),
     CONSTRAINT fk_cert_registration FOREIGN KEY (registration_id) REFERENCES registrations(registration_id) ON DELETE CASCADE,
     CONSTRAINT fk_cert_participant FOREIGN KEY (participant_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    CONSTRAINT fk_cert_workshop FOREIGN KEY (workshop_id) REFERENCES workshops(workshop_id) ON DELETE CASCADE
+    CONSTRAINT fk_cert_workshop FOREIGN KEY (workshop_id) REFERENCES workshops(workshop_id) ON DELETE CASCADE,
+    CONSTRAINT fk_cert_issued_by FOREIGN KEY (issued_by) REFERENCES users(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 6. AUDIT LOGS TABLE

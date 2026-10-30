@@ -88,6 +88,19 @@ public class DatabaseConfig {
             password = explicitPass;
         }
 
+        // Check if local MySQL is accessible; if not running, fall back to embedded H2 MySQL mode
+        if (driverClassName.contains("mysql") && jdbcUrl.contains("localhost")) {
+            try (java.net.Socket s = new java.net.Socket()) {
+                s.connect(new java.net.InetSocketAddress("localhost", 3306), 1500);
+            } catch (Exception e) {
+                log.warn("Local MySQL service (localhost:3306) is not currently running. Activating embedded H2 database in MySQL compatibility mode so the system runs out-of-the-box.");
+                jdbcUrl = "jdbc:h2:mem:workshop_management;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE";
+                driverClassName = "org.h2.Driver";
+                username = "sa";
+                password = "";
+            }
+        }
+
         log.info("Initialized DataSource: driverClassName={}, jdbcUrl={}, username={}",
                 driverClassName, jdbcUrl.replaceAll(":[^:@]+@", ":****@"), username);
 

@@ -40,7 +40,7 @@ public class UserRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[] { "user_id" });
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, user.getFullName());
             ps.setString(2, user.getEmail().toLowerCase().trim());
             ps.setString(3, user.getPasswordHash());

@@ -196,7 +196,9 @@ function openDetailsModal(workshopId) {
   if (!currentUser) {
     confirmBtn.style.display = 'inline-flex';
     confirmBtn.textContent = 'Sign In to Register';
-    confirmBtn.onclick = () => window.location.href = 'login.html';
+    confirmBtn.onclick = () => {
+      window.location.href = 'login.html?redirect=' + encodeURIComponent('workshops.html?id=' + activeModalWorkshopId);
+    };
     notesGroup.style.display = 'none';
   } else if (currentUser.role === 'ADMIN') {
     confirmBtn.style.display = 'none';

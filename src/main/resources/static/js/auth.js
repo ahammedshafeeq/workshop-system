@@ -63,8 +63,12 @@ const Auth = {
     const user = await API.post('/api/auth/login', { email, password });
     this.currentUser = user;
     showToast('Welcome back, ' + user.fullName + '!', 'success');
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectUrl = urlParams.get('redirect');
     setTimeout(() => {
-      if (user.role === 'ADMIN') {
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else if (user.role === 'ADMIN') {
         window.location.href = 'admin-dashboard.html';
       } else {
         window.location.href = 'participant-dashboard.html';
@@ -77,8 +81,14 @@ const Auth = {
     const user = await API.post('/api/auth/register', data);
     this.currentUser = user;
     showToast('Registration successful! Welcome to TRIX Workshops.', 'success');
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectUrl = urlParams.get('redirect');
     setTimeout(() => {
-      window.location.href = 'participant-dashboard.html';
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else {
+        window.location.href = 'participant-dashboard.html';
+      }
     }, 600);
     return user;
   },

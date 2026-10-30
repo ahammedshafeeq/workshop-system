@@ -63,7 +63,7 @@ public class RegistrationRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[] { "registration_id" });
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, r.getParticipantId());
             ps.setLong(2, r.getWorkshopId());
             ps.setString(3, r.getRegistrationStatus() != null ? r.getRegistrationStatus() : "APPROVED");

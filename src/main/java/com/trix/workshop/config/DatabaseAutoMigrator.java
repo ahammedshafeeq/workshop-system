@@ -60,6 +60,43 @@ public class DatabaseAutoMigrator implements CommandLineRunner {
                 log.info("DatabaseAutoMigrator: All core tables verified.");
             }
 
+            // Ensure workshops and certificates have new certificate columns for premium templates & verification
+            try {
+                jdbcTemplate.execute("ALTER TABLE workshops ADD COLUMN IF NOT EXISTS certificate_template VARCHAR(50) DEFAULT 'classic_gold';");
+            } catch (Exception e) {
+                try { jdbcTemplate.execute("ALTER TABLE workshops ADD COLUMN certificate_template VARCHAR(50) DEFAULT 'classic_gold';"); } catch (Exception ignored) {}
+            }
+
+            try {
+                jdbcTemplate.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS certificate_code VARCHAR(30);");
+            } catch (Exception e) {
+                try { jdbcTemplate.execute("ALTER TABLE certificates ADD COLUMN certificate_code VARCHAR(30);"); } catch (Exception ignored) {}
+            }
+
+            try {
+                jdbcTemplate.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS template_id VARCHAR(30) DEFAULT 'classic_gold';");
+            } catch (Exception e) {
+                try { jdbcTemplate.execute("ALTER TABLE certificates ADD COLUMN template_id VARCHAR(30) DEFAULT 'classic_gold';"); } catch (Exception ignored) {}
+            }
+
+            try {
+                jdbcTemplate.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS certificate_type VARCHAR(30) DEFAULT 'Participation';");
+            } catch (Exception e) {
+                try { jdbcTemplate.execute("ALTER TABLE certificates ADD COLUMN certificate_type VARCHAR(30) DEFAULT 'Participation';"); } catch (Exception ignored) {}
+            }
+
+            try {
+                jdbcTemplate.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS issued_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP;");
+            } catch (Exception e) {
+                try { jdbcTemplate.execute("ALTER TABLE certificates ADD COLUMN issued_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP;"); } catch (Exception ignored) {}
+            }
+
+            try {
+                jdbcTemplate.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS issued_by BIGINT NULL;");
+            } catch (Exception e) {
+                try { jdbcTemplate.execute("ALTER TABLE certificates ADD COLUMN issued_by BIGINT NULL;"); } catch (Exception ignored) {}
+            }
+
             // For PostgreSQL: Ensure any older schema versions have updated column definitions
             if (dbProduct.contains("postgres")) {
                 try {

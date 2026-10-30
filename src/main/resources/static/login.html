@@ -356,7 +356,7 @@
         </div>
 
         <div style="margin-top: 24px; text-align: center; font-size: 0.88rem; color: var(--text-secondary);">
-          Don't have an account? <a href="register.html" style="color: var(--brand-primary); font-weight: 700; text-decoration: none;">Register here</a>
+          Don't have an account? <a id="register-link" href="register.html" style="color: var(--brand-primary); font-weight: 700; text-decoration: none;">Register here</a>
         </div>
 
         <div style="margin-top: 14px; text-align: center; font-size: 0.82rem;">
@@ -371,6 +371,14 @@
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script>
+    // Forward redirect parameter if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectParam = urlParams.get('redirect');
+    if (redirectParam) {
+      const regLink = document.getElementById('register-link');
+      if (regLink) regLink.href = 'register.html?redirect=' + encodeURIComponent(redirectParam);
+    }
+
     function fillCreds(email, pass) {
       document.getElementById('login-email').value = email;
       document.getElementById('login-password').value = pass;

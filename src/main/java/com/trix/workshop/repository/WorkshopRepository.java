@@ -46,7 +46,7 @@ public class WorkshopRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[] { "workshop_id" });
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, w.getTitle());
             ps.setString(2, w.getDescription());
             ps.setString(3, w.getCategory());
